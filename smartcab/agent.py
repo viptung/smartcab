@@ -44,8 +44,10 @@ class LearningAgent(Agent):
             self.epsilon = 0
             self.alpha = 0
         else:
-            self.t+=1
+            
             self.epsilon = math.cos(self.beta*self.t)
+            self.t+=1
+            
         return None
 
     def build_state(self):
@@ -89,10 +91,7 @@ class LearningAgent(Agent):
         # If it is not, create a new dictionary for that state
         #   Then, for each action available, set the initial Q-value to 0.0
         if self.learning:
-            if self.Q.has_key(state) == False:
-                self.Q[state] = {}
-                for i in self.valid_actions:
-                    self.Q[state][i] = 0.0
+            self.Q.setdefault(state, {action: 0.0 for action in self.valid_actions})
 
         return
 
@@ -112,11 +111,8 @@ class LearningAgent(Agent):
         #   Otherwise, choose an action with the highest Q-value for the current state
         y = random.random()
         if self.learning and y > self.epsilon:
-            listA = []
             MQ = self.get_maxQ(state)
-            for key, values in self.Q[state].items():
-                if values == MQ:
-                    listA.append(key)
+            listA=[k for k, v in self.Q[state].items() if v == MQ]
             action = random.choice(listA)
         else:
             x = random.randint(0, 3)
@@ -169,7 +165,7 @@ def run():
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent, learning=True, alpha=0.5, epsilon=1,beta=0.0015708)
+    agent = env.create_agent(LearningAgent, learning=True, alpha=0.5, epsilon=1,beta=0.0010472)
 
     ##############
     # Follow the driving agent
@@ -184,7 +180,7 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, log_metrics=True, optimized=True)
+    sim = Simulator(env, update_delay=0.01, log_metrics=True, optimized=True, display=False)
 
     ##############
     # Run the simulator
